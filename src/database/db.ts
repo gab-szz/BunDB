@@ -1,29 +1,28 @@
-import { appendFile, exists, mkdir, realpath } from 'node:fs/promises';
+import { appendFile, exists, mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
 
-const caminhoDoProjeto = await realpath('../');
+const raizProjeto = resolve(import.meta.dir, '../../');
 
+/**
+ * Classe responsável pelo Banco de Dados próprio em TXT
+ */
 export class TxtDB {
   // DIRETÓRIOS
-  diretorioBanco = `${caminhoDoProjeto}/db`;
-  diretorioTabelas = `${this.diretorioBanco}/tables`;
+  dirBanco = resolve(raizProjeto, 'db');
+  dirTabelas = resolve(this.dirBanco, 'tables');
 
   // TABELAS
-  tabelaQueueConfig = `${this.diretorioTabelas}/queueConfig.txt`;
+  tabelaContasReceber = Bun.file(`${this.dirTabelas}/contasreceber.txt`);
 
   // MÈTODOS
 
   async inicializar(): Promise<void> {
-    // Criar diretório do Banco de Dados
-    if (!(await exists(this.diretorioBanco))) {
-      await mkdir(this.diretorioBanco);
-      console.log('Diretório do Banco de Dados criado com sucesso!');
-    }
+    // Criar os diretórios do Banco de Dados
+    await mkdir(this.dirTabelas, { recursive: true });
 
-    // Criar diretório de Tabelas e Tabelas
-    if (!(await exists(this.diretorioTabelas))) {
-      await mkdir(this.diretorioTabelas);
-      await appendFile(this.tabelaQueueConfig, '');
-      console.log('Tabelas criada com sucesso!');
+    // Criar a tabela do Contas a Receber caso não exista
+    if (!(await this.tabelaContasReceber.exists())) {
+      await Bun.write(this.tabelaContasReceber, '');
     }
 
     console.log('O Banco de Dados foi inicializado com sucesso!');

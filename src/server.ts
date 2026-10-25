@@ -8,7 +8,7 @@ async function main() {
   await db.inicializar();
 
   const server = Bun.serve({
-    port: 3000,
+    port: 2321,
     routes: {
       '/status': { GET: () => Response.json({ status: 'OK' }) },
       '/openapi.json': { GET: () => Response.json(openapi) },
